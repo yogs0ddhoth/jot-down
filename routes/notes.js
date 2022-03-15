@@ -7,7 +7,7 @@ const {
 } = require('../helpers/fsUtils');
 
 notes.get('/', (req, res) => {
-  readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
+  readFromFile('./db/notes_db.json').then((data) => res.json(JSON.parse(data)));
 });
 
 notes.post('/', (req, res) => {
@@ -19,12 +19,22 @@ notes.post('/', (req, res) => {
       text,
       id: uuidv4(),
     };
-
-    readAndAppend(newNote, './db/db.json');
+    readAndAppend(newNote, './db/notes_db.json');
     res.json(`${newNote} added successfully 🚀`);
   } else {
     res.error('Error in adding tip');
   }
+});
+
+notes.delete('/:id', (req, res) => {
+  readFromFile('./db/notes_db.json')
+  .then(data => JSON.parse(data))
+  .then(data => {
+    const newDb = data.filter(element => element.id !== req.params.id);
+    writeToFile('./db/notes_db.json', newDb);
+    
+    res.json(`Note: ${req.params.id} has been deleted 🗑️`);
+  })
 });
 
 module.exports = notes;
